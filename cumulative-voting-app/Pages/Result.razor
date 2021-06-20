@@ -1,0 +1,67 @@
+﻿
+@page "/result"
+
+@using cumulative_voting_app.Data
+@inject VotingService _votingService
+
+<h1>Results</h1>
+
+
+
+
+@if (_results == null)
+{
+    <input placeholder="Please enter hash key for the project" @bind="_hash" />
+    <button @onclick="GetRequirements">Submit</button>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Requirement Name</th>
+                <th>Total Points</th>
+                @foreach (var stakeholder in _results.SelectMany(x => x.Votes.Select(y => y.StakeholderName)).Distinct())
+
+                {
+                    <th>@stakeholder.ToString()</th>
+
+                }
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var result in _results)
+            {
+                <tr>
+                    <td>@result.Requirement</td>
+                    <td>@result.Votes.Sum(x => x.Points)</td>
+                    @foreach (var vote in result.Votes)
+                    {
+                        <td>@vote.Points</td>
+                    }
+                </tr>
+            }
+        </tbody>
+    </table>
+
+}
+
+
+
+
+
+@code {
+
+    private string _hash;
+    private IList<VoteResults> _results;
+
+    private void GetRequirements()
+    {
+        _results = _votingService.GetResults(_hash);
+        var foo = _results.SelectMany(x => x.Votes.Select(y => y.StakeholderName));
+    }
+
+
+}
+
+

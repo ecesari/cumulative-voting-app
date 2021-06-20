@@ -1,0 +1,57 @@
+﻿@page "/voting"
+
+@using cumulative_voting_app.Data
+@inject VotingService _votingService
+
+<h1>Voting</h1>
+
+
+
+
+@if (_votes == null || _votes.Count < 1)
+{
+    <input placeholder="Please enter hash key for the project" @bind="_hash" />
+    <input placeholder="Please enter your name" @bind="_stakeholderName" />
+
+    <button @onclick="GetRequirements">Submit</button>
+}
+else
+{
+    <p>Current Project: @_hash</p>
+
+    <ul>
+        @foreach (var vote in _votes)
+        {
+            <li>@vote.RequirementName   <input placeholder="Please enter your points"   @bind="vote.Points" /></li>
+
+        }
+    </ul>
+    <button @onclick="Vote">Submit</button>
+
+    <p>Remaining Points: @(100-_votes.Select(x=>x.Points).Sum())</p>
+}
+
+
+@code {
+
+    private string _hash;
+    private string _stakeholderName;
+    private List<Vote> _votes = new List<Vote>();
+    private int _points;
+
+
+
+    private void GetRequirements()
+    {
+        foreach (var requirement in _votingService.GetProjectRequirements(_hash))
+        {
+            _votes.Add(new Vote(_stakeholderName, requirement, 0));
+        }
+    }
+
+    private void Vote()
+    {
+        _votingService.AddVotes(_votes, _hash);
+        _votes = new List<Vote>();
+    }
+}
