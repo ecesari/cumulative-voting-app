@@ -21,7 +21,6 @@ else
             <tr>
                 <th>Requirement Name</th>
                 <th>Total Points</th>
-                @*@foreach (var stakeholder in _results.SelectMany(x => x.Votes.Select(y => y.StakeholderName)))*@
                 @foreach (var stakeholder in _results.SelectMany(x => x.Votes.Select(y => y.StakeholderName)).Distinct())
 
                 {
@@ -54,29 +53,12 @@ else
 @code {
 
     private string _hash;
-    private string _stakeholderName;
-    private List<Vote> _votes = new List<Vote>();
-    private int _points;
-    private readonly bool newProject;
     private IList<VoteResults> _results;
-
-
 
     private void GetRequirements()
     {
         _results = _votingService.GetResults(_hash);
         var foo = _results.SelectMany(x => x.Votes.Select(y => y.StakeholderName));
-        //foreach (var item in foo)
-        //{
-        //    var a = item.Select(x => x);
-        //    var b = item.;
-        //    var c = item.Select(x => x);
-        //}
-
-        //var result = _results.Values.SelectMany(x => x.Keys)
-        //    .Concat(myDict.Keys)
-        //    .Distinct()
-        //    .ToList();
     }
 
 

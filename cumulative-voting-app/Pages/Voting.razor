@@ -28,13 +28,8 @@ else
     </ul>
     <button @onclick="Vote">Submit</button>
 
-    <p>Remaining Points: @_points</p>
-    <p hidden="@_votes!= null">Remaining Points: @_points</p>
-    
+    <p>Remaining Points: @(100-_votes.Select(x=>x.Points).Sum())</p>
 }
-
-
-
 
 
 @code {
@@ -43,7 +38,6 @@ else
     private string _stakeholderName;
     private List<Vote> _votes = new List<Vote>();
     private int _points;
-    private readonly bool newProject;
 
 
 
@@ -59,11 +53,5 @@ else
     {
         _votingService.AddVotes(_votes, _hash);
         _votes = new List<Vote>();
-    }
-
-    private void CalculatePoints()
-    {
-        var totalPoints = _votes.Select(x => x.Points).Sum();
-        _points = 100 - totalPoints;
     }
 }
