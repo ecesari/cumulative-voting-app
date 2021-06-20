@@ -1,0 +1,50 @@
+﻿@page "/create"
+
+@using cumulative_voting_app.Data
+@inject VotingService _votingService
+
+
+<h1>Create New Project</h1>
+
+<EditForm Model="@_requirements" OnValidSubmit="@AddRequirement">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <ul>
+        @foreach (var requirement in _requirements)
+        {
+            <li>@requirement</li>
+        }
+    </ul>
+
+    <input placeholder="New Requirement" @bind="_newRequirement" />
+    <button @onclick="AddRequirement">Add Requirement</button>
+
+    
+    <p>@_hash</p>
+</EditForm>
+<button @onclick="HandleValidSubmit" type="submit">Submit</button>
+
+
+@code {
+
+
+    private readonly List<string> _requirements = new List<string>();
+    private string _newRequirement;
+    private string _hash;
+
+    private void AddRequirement()
+    {
+        if (!string.IsNullOrWhiteSpace(_newRequirement))
+        {
+            _requirements.Add(_newRequirement);
+        }
+        _newRequirement = String.Empty;
+
+    }
+
+    private void HandleValidSubmit()
+    {
+        _hash = _votingService.CreateProject(_requirements);
+    }
+}
+

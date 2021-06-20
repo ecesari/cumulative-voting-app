@@ -62,18 +62,29 @@ namespace cumulative_voting_app.Data
             projectStorage[projectHash] = project;
         }
 
-        public VoteResults GetResults(string projectHash)
+        public IList<VoteResults> GetResults(string projectHash)
         {
             var project = projectStorage[projectHash];
-            var votesPerStakeholder = project.Votes
-                .GroupBy(vote => vote.StakeholderName)
-                .ToDictionary(g => g.Key, g => g.ToList());
+            //var votesPerStakeholder = project.Votes
+            //    .GroupBy(vote => vote.StakeholderName)
+            //    .ToDictionary(g => g.Key, g => g.ToList());
 
-            var totalVotesPerRequirement = project.Votes
-                .GroupBy(vote => vote.RequirementName)
-                .ToDictionary(g => g.Key, g => g.Aggregate(0, (acc, v) => acc + v.Points));
+            //var totalVotesPerRequirement = project.Votes
+            //    .GroupBy(vote => vote.RequirementName)
+            //    .ToDictionary(g => g.Key, g => g.Aggregate(0, (acc, v) => acc + v.Points));
 
-            return new VoteResults(totalVotesPerRequirement, votesPerStakeholder);
+            //var result = new VoteResults(totalVotesPerRequirement, votesPerStakeholder);
+            var list = new List<VoteResults>();
+            foreach (var projectRequirement in project.Requirements)
+            {
+                var result = new VoteResults {Requirement = projectRequirement, Votes = new List<Vote>()};
+                foreach (var vote in project.Votes.Where(x => x.RequirementName == projectRequirement))
+                {
+                    result.Votes.Add(new Vote(vote.StakeholderName, projectRequirement, vote.Points));
+                }
+                list.Add(result);
+            }
+            return list;
         }
     }
 }

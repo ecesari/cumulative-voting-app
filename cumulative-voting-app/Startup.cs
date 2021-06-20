@@ -28,7 +28,6 @@ namespace cumulative_voting_app
         {
             services.AddRazorPages();
             services.AddServerSideBlazor();
-            services.AddSingleton<WeatherForecastService>();
             services.AddSingleton<VotingService>();
         }
 
