@@ -5,32 +5,83 @@
 
 
 <h1>Create New Project</h1>
+<style>
+    p {
+        text-align: center;
+        font-size: 20px;
+    }
 
-<EditForm Model="@_requirements" OnValidSubmit="@AddRequirement">
-    <DataAnnotationsValidator />
-    <ValidationSummary />
-    <ul>
-        @foreach (var requirement in _requirements)
-        {
-            <li>@requirement</li>
-        }
-    </ul>
-
-    <input placeholder="New Requirement" @bind="_newRequirement" />
-    <button @onclick="AddRequirement">Add Requirement</button>
-
+    h1 {
+                text-align: center;
     
-    <p>@_hash</p>
-</EditForm>
-<button @onclick="HandleValidSubmit" type="submit">Submit</button>
+    }
+
+    .center {
+        text-align: center;
+        /*border: 3px solid green;*/
+    }
+</style>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+
+<p>You may add requirements here                                                      </p>
+<p>Click on plus sign for adding a new requirement                                    </p>
+<p>When all desired requirements are added move on to voting page from left menu      </p>
+
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+
+
+<div class="card m-3 center">
+    <h4 class="card-header">Add Requirements To Project</h4>
+    <div class="card-body">
+        @if(_newProject)
+        {
+        <div>
+            <p>You can add new requirements to the project </p>
+            <EditForm Model="@_requirements" OnValidSubmit="@AddRequirement">
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+                <ul class="list-group">
+                    @foreach (var requirement in _requirements)
+                    {
+                        <li class="list-group-item">@requirement</li>
+                    }
+                </ul>
+
+                <input placeholder="New Requirement" @bind="_newRequirement" />
+                <button @onclick="AddRequirement">Add Requirement</button>
+            </EditForm>
+            <p>&nbsp;</p>
+
+            <button @onclick="HandleValidSubmit" type="submit">Create</button>
+
+        </div>
+        }
+        else
+        {
+            <div>
+                <p>Your hash for the project is: </p>
+                <p style="color: crimson">@_hash</p>
+                <p>You can create a new project by clicking to the button below or continue to voting</p>
+                <p>&nbsp;</p>
+                <button @onclick="NewProject" type="submit">New Project</button>
+
+            </div>
+        }
+    </div>
+</div>
+
 
 
 @code {
 
 
-    private readonly List<string> _requirements = new List<string>();
+    private List<string> _requirements = new List<string>();
     private string _newRequirement;
     private string _hash;
+    private bool _newProject = true;
 
     private void AddRequirement()
     {
@@ -45,6 +96,14 @@
     private void HandleValidSubmit()
     {
         _hash = _votingService.CreateProject(_requirements);
+        _newProject = false;
+    }
+
+    private void NewProject()
+    {
+        _newProject = true;
+        _requirements = new List<string>();
+        _hash = null;
     }
 }
 

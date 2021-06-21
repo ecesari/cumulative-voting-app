@@ -1,52 +1,100 @@
-﻿
-@page "/result"
+﻿@page "/result"
 
 @using cumulative_voting_app.Data
 @inject VotingService _votingService
+<link href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+
+<style>
+    .sort-th {
+        cursor: pointer;
+    }
+
+    .fa {
+        float: right;
+    }
+
+    p {
+        text-align: center;
+        font-size: 20px;
+    }
+
+    h1 {
+        text-align: center;
+    }
+
+    .center {
+        text-align: center;
+        /*border: 3px solid green;*/
+    }
+</style>
+
+
 
 <h1>Results</h1>
 
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>Following are the results of the cumulative voting                                                             </p>
+<p>The results for each stakeholder are combined by summing up the scores                                         </p>
+<p>The table below shows how much each participant has rated the corresponding requirement and the total score    </p>
 
 
+<p>&nbsp;</p>
+<p>&nbsp;</p>
 
-@if (_results == null)
-{
-    <input placeholder="Please enter hash key for the project" @bind="_hash" />
-    <button @onclick="GetRequirements">Submit</button>
-}
-else
-{
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Requirement Name</th>
-                <th>Total Points</th>
-                @foreach (var stakeholder in _results.SelectMany(x => x.Votes.Select(y => y.StakeholderName)).Distinct())
+<div class="card m-3 center">
+    <h4 class="card-header">Project Results</h4>
+    <div class="card-body">
+        @if (_results == null)
+        {
+            <input placeholder="Please enter hash key for the project" @bind="_hash" />
+            <button @onclick="GetRequirements">Submit</button>
+        }
+        else
+        {
+            <table class="table table-hover table-bordered">
+                <thead>
+                    <tr>
+                        <th class="sort-th" @onclick="@(() => SortTable("Requirement"))">
+                            Requirement
+                            <span class="fa @(SetSortIcon("Requirement"))"></span>
 
-                {
-                    <th>@stakeholder.ToString()</th>
+                        </th>
+                        <th class="sort-th" @onclick="@(() => SortTable("TotalPoints"))">
+                            Total Points
+                            <span class="fa @(SetSortIcon("TotalPoints"))"></span>
 
-                }
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var result in _results)
-            {
-                <tr>
-                    <td>@result.Requirement</td>
-                    <td>@result.Votes.Sum(x => x.Points)</td>
-                    @foreach (var vote in result.Votes)
+                        </th>
+                        @foreach (var stakeholder in _results.SelectMany(x => x.Votes.Select(y => y.StakeholderName)).Distinct())
+
+                        {
+                            <th class="sort-th" @onclick="@(() => SortTable(stakeholder))">
+                                @stakeholder
+                                <span class="fa @(SetSortIcon(@stakeholder))"></span>
+
+                            </th>
+
+                        }
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var result in _results)
                     {
-                        <td>@vote.Points</td>
+                        <tr>
+                            <td>@result.Requirement</td>
+                            <td>@result.TotalPoints</td>
+                            @foreach (var vote in result.Votes)
+                            {
+                                <td>@vote.Points</td>
+                            }
+                        </tr>
                     }
-                </tr>
-            }
-        </tbody>
-    </table>
+                </tbody>
+            </table>
 
-}
-
-
+        }
+    </div>
+</div>
 
 
 
@@ -54,13 +102,78 @@ else
 
     private string _hash;
     private IList<VoteResults> _results;
+    private bool _isSortedAscending;
+    private string _currentSortColumn;
 
     private void GetRequirements()
     {
         _results = _votingService.GetResults(_hash);
-        var foo = _results.SelectMany(x => x.Votes.Select(y => y.StakeholderName));
     }
 
+    private void SortTable(string columnName)
+    {
+        //Sorting against a column that is not currently sorted against.
+        if (columnName != _currentSortColumn)
+        {
+            if (columnName == "Requirement" || columnName == "TotalPoints")
+            {
+                _results = _results.OrderBy(x =>
+                x.GetType().GetProperty(columnName)?.GetValue(x, null))
+                .ToList();
+            }
+            else
+            {
+                _results = _results.OrderBy(x => x.Votes.FirstOrDefault(y => y.StakeholderName == columnName).Points).ToList();
+
+
+            }
+            _currentSortColumn = columnName;
+            _isSortedAscending = true;
+
+        }
+        else //Sorting against same column but in different direction
+        {
+            if (_isSortedAscending)
+            {
+                if (columnName == "Requirement" || columnName == "TotalPoints")
+                {
+                    _results = _results.OrderByDescending(x =>
+                        x.GetType().GetProperty(columnName)?.GetValue(x, null))
+                        .ToList();
+                }
+                else
+                {
+                    _results = _results.OrderByDescending(x => x.Votes.FirstOrDefault(y => y.StakeholderName == columnName).Points).ToList();
+                }
+            }
+            else
+            {
+
+                if (columnName == "Requirement" || columnName == "TotalPoints")
+                {
+                    _results = _results.OrderBy(x =>
+                        x.GetType().GetProperty(columnName)?.GetValue(x, null))
+                        .ToList();
+                }
+                else
+                {
+                    _results = _results.OrderBy(x => x.Votes.FirstOrDefault(y => y.StakeholderName == columnName).Points).ToList();
+                }
+            }
+
+            //Toggle this boolean
+            _isSortedAscending = !_isSortedAscending;
+        }
+    }
+
+    private string SetSortIcon(string columnName)
+    {
+        if (_currentSortColumn != columnName)
+        {
+            return "fa-sort";
+        }
+        return _isSortedAscending ? "fa-sort-up" : "fa-sort-down";
+    }
 
 }
 

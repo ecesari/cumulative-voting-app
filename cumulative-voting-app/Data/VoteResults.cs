@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 
 namespace cumulative_voting_app.Data
 {
@@ -16,5 +17,6 @@ namespace cumulative_voting_app.Data
 
         public string Requirement { get; set; }
         public IList<Vote> Votes { get; set; }
+        public int TotalPoints => Votes.Sum(x => x.Points);
     }
 }

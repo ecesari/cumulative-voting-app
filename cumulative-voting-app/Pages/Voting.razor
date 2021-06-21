@@ -5,41 +5,94 @@
 
 <h1>Voting</h1>
 
+<style>
+    p {
+        text-align: center;
+        font-size: 20px;
+    }
 
+    h1 {
+        text-align: center;
+    }
 
+    .center {
+        text-align: center;
+        /*border: 3px solid green;*/
+    }
+</style>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
 
-@if (_votes == null || _votes.Count < 1)
-{
-    <input placeholder="Please enter hash key for the project" @bind="_hash" />
-    <input placeholder="Please enter your name" @bind="_stakeholderName" />
+<p>Here you must distribute the 100 points (your total budget) given to your service     </p>
+<p>Allocate as much as you consider the requirement’s prioritization to be worth         </p>
+<p>The more important you consider the requirement, the higher points you may allocate   </p>
+<p>When all 100 points are distributed you may click on “Finish voting” button.          </p>
+<p>After all users finish voting the results page will be available                      </p>
 
-    <button @onclick="GetRequirements">Submit</button>
-}
-else
-{
-    <p>Current Project: @_hash</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
 
-    <ul>
-        @foreach (var vote in _votes)
+<div class="card m-3 center">
+    <h4 class="card-header">Vote Project Requirements</h4>
+    <div class="card-body">
+        @if (_votes == null || _votes.Count < 1)
         {
-            <li>@vote.RequirementName   <input placeholder="Please enter your points"   @bind="vote.Points" /></li>
+            if (_newVote)
+            {
+                <input placeholder="Please enter hash key for the project" @bind="_hash" />
+                <input placeholder="Please enter your name" @bind="_stakeholderName" />
+
+                <button @onclick="GetRequirements">Submit</button>
+            }
+            else
+            {
+                <p>Thank you for voting! </p>
+                <p>You can vote for a new project by clicking to the button below or continue to results</p>
+                <p>&nbsp;</p>
+                <button @onclick="NewVoting" type="submit">New Project</button>
+            }
 
         }
-    </ul>
-    <button @onclick="Vote">Submit</button>
+        else
+        {
+            <p>Current Project: @_hash</p>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th scope="col">Requirement</th>
+                        <th scope="col">Your Points</th>
+                    </tr>
+                </thead>
+                <tbody>
 
-    <p>Remaining Points: @(100-_votes.Select(x=>x.Points).Sum())</p>
-}
+                    @foreach (var vote in _votes)
+                    {
+                        <tr>
+                            <td>@vote.RequirementName </td>
 
+                            <td>
+                                <input placeholder="Please enter your points" @bind="vote.Points" />
+                            </td>
+                        </tr>
+                    }
+
+                </tbody>
+            </table>
+            <button @onclick="Vote">Finish Voting</button>
+            <p>&nbsp;</p>
+
+            <p style="color: crimson">Remaining Points: @(100-_votes.Select(x=>x.Points).Sum())</p>
+        }
+    </div>
+</div>
 
 @code {
 
     private string _hash;
     private string _stakeholderName;
     private List<Vote> _votes = new List<Vote>();
-    private int _points;
-
-
+    private bool _newVote = true;
 
     private void GetRequirements()
     {
@@ -53,5 +106,15 @@ else
     {
         _votingService.AddVotes(_votes, _hash);
         _votes = new List<Vote>();
+        _newVote = false;
+
+    }
+
+    private void NewVoting()
+    {
+        _newVote = true;
+    
+        _hash = null;
+        _stakeholderName = null;
     }
 }
