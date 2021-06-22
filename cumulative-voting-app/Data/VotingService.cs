@@ -65,15 +65,6 @@ namespace cumulative_voting_app.Data
         public IList<VoteResults> GetResults(string projectHash)
         {
             var project = projectStorage[projectHash];
-            //var votesPerStakeholder = project.Votes
-            //    .GroupBy(vote => vote.StakeholderName)
-            //    .ToDictionary(g => g.Key, g => g.ToList());
-
-            //var totalVotesPerRequirement = project.Votes
-            //    .GroupBy(vote => vote.RequirementName)
-            //    .ToDictionary(g => g.Key, g => g.Aggregate(0, (acc, v) => acc + v.Points));
-
-            //var result = new VoteResults(totalVotesPerRequirement, votesPerStakeholder);
             var list = new List<VoteResults>();
             foreach (var projectRequirement in project.Requirements)
             {
